@@ -119,7 +119,6 @@ var _getAvailableSource = function(creep, callback) {
 }
 
 var _findAvailableSource = function(creeps, roomSources, count, callback) {
-  var excludeSources = ['087f164ee2a67d652ca052be']
   var sourceUseCount = 0;
   var currentSource = roomSources[count]
   for(var i = 0; i < creeps.length; i++) {
@@ -127,10 +126,14 @@ var _findAvailableSource = function(creeps, roomSources, count, callback) {
       sourceUseCount++;
     }
   }
+
   if(sourceUseCount < 4) {
+    console.log('Source Use count < 4', sourceUseCount < 4)
     return callback(currentSource)
   } else {
+
     if(count > (roomSources.length - 1)) {
+      console.log('count > roomSources.length - 1', count > roomSources.length - 1)
       return callback();
     } else {
       count++;

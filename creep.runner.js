@@ -2,6 +2,7 @@ var roleHarvester = require('role.harvester')
 var roleUpgrader = require('role.upgrader')
 var roleBuilder = require('role.builder')
 var roles = ['harvester', 'upgrader', 'builder']
+var roomName = 'W5N8'
 module.exports = {
   run: function() {
     var creeps = _getCreeps()
@@ -34,10 +35,10 @@ var _getCreeps = function() {
 }
 
 var _buildTargetExists = function() {
-  return Game.rooms['sim'].find(FIND_CONSTRUCTION_SITES).length > 0
+  return Game.rooms[roomName].find(FIND_CONSTRUCTION_SITES).length > 0
 }
 
 var _spawnHasCapacity = function() {
-  var room = Game.rooms['sim']
+  var room = Game.rooms[roomName]
   return room.energyCapacityAvailable > room.energyAvailable
 }

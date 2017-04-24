@@ -1,5 +1,5 @@
 var structures = require('structure.helper')
-var roomName = 'sim'
+var roomName = 'W5N8'
 module.exports = {
   breed: function() {
     var spawnToUse = structures.findAvailableSpawn()

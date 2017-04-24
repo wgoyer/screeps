@@ -1,4 +1,4 @@
-var roomName = 'sim'
+var roomName = 'W5N8'
 module.exports = {
   findBuildTarget: function() {
     return Game.rooms[roomName].find(FIND_CONSTRUCTION_SITES)[0] || null
