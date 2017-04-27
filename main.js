@@ -1,11 +1,14 @@
 var spawner = require('spawn.creator');
 var creepRunner = require('creep.runner');
 var creepClean = require('creep.deathPanel');
+var towerRunner = require('tower.runner');
 
 module.exports.loop = function () {
-  spawner.breed();
-  creepRunner.run();
-  creepClean.purge();
+  spawner.breed()
+  // spawner.specialOrder();
+  towerRunner.run()
+  creepRunner.run()
+  creepClean.purge()
 
 
 

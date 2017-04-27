@@ -1,4 +1,5 @@
 module.exports = {
+  /** @param {Creep} creep **/
   harvest: function(creep) {
     _say(creep, '⛏ harvest')
     _headToEnergySourceAndHarvest(creep)
@@ -40,7 +41,7 @@ var _headToEnergySourceAndHarvest = function(creep) {
 var _headToDepositTargetAndDepositEnergy = function(creep) {
   var targets = creep.room.find(FIND_STRUCTURES, {
     filter: (structure) => {
-      return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
+      return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER) &&
       structure.energy < structure.energyCapacity;
     }
   })
@@ -128,12 +129,9 @@ var _findAvailableSource = function(creeps, roomSources, count, callback) {
   }
 
   if(sourceUseCount < 4) {
-    console.log('Source Use count < 4', sourceUseCount < 4)
     return callback(currentSource)
   } else {
-
-    if(count > (roomSources.length - 1)) {
-      console.log('count > roomSources.length - 1', count > roomSources.length - 1)
+    if(count >= (roomSources.length - 1)) {
       return callback();
     } else {
       count++;

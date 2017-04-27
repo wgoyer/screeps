@@ -14,11 +14,34 @@ module.exports = {
 
   findAvailableSpawn: function() {
     return _getAvailableSpawns()[0] || null
+  },
+
+  findTowers: function() {
+    return _getStructuresFromRoom('tower')
+  },
+
+  /** @param {structureType} structureType **/
+  findSpecialOrders: function(structureType, orderType) {
+    var filter = {
+      filter: function(structure) {
+        return structure.structureType == structureType &&
+          structure.memory &&
+          structure.memory.specialOrder &&
+          structure.memory.specialOrder.type == orderType
+      }
+    }
+    return Game.rooms[roomName].find(FIND_MY_STRUCTURES, filter)[0] || null
   }
 }
 
 var _getStructuresFromRoom = function(structureType) {
-  return Game.rooms[roomName].find(FIND_STRUCTURES, {filter:{structureType: structureType}})
+  var filter = {filter: {structureType: structureType}}
+  return Game.rooms[roomName].find(FIND_STRUCTURES, filter)
+}
+
+var _getMyStructuresFromRoom = function(structureType) {
+  var filter = {filter: {structureType: structureType}}
+  return Game.rooms[roomName].find(FIND_MY_STRUCTURES, filter)
 }
 
 var _getStructuresWithAvailableEnergyCapacity = function() {

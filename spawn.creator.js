@@ -1,17 +1,39 @@
 var structures = require('structure.helper')
 var roomName = 'W5N8'
+var maxCreepCount = 5
 module.exports = {
   breed: function() {
     var spawnToUse = structures.findAvailableSpawn()
     var availableEnergy = _getAvailableSpawnEnergy()
     if(spawnToUse) _spawnCreep(spawnToUse, availableEnergy)
+  },
+  specialOrder: function() {
+    var buildingWithSpecialOrders = structures.findSpecialOrders('spawn', 'breed')
+    if(buildingWithSpecialOrders) {
+      var specialOrders = buildingWithSpecialOrders.memory.specialOrder
+      var spawnToUse = structures.findAvailableSpawn()
+      if(spawnToUse && _specialOrderIsValid(specialOrders)) {
+        var bodyParts = specialOrders.templateName ? _baseCreeps[specialOrders.templateName].bodyParts : specialOrders.bodyParts
+        if(_energyIsAvailableToBreed(bodyParts)) {
+          if(typeof(spawnToUse.createCreep(bodyParts, {role: specialOrders.role, level: specialOrders.level})) == 'string') {
+            console.log('Special breed order executed, deleting order')
+            delete(buildingWithSpecialOrders.memory.specialOrders)
+          } else {
+            console.log('Failed to execute special breed order.  Spawn command didn\'t work')
+          }
+        } else {
+          console.log('Failed to execute special breed order.  Not enough energy')
+        }
+      } else {
+        console.log('Failed to execute special breed order.  No available spawn, or bad object')
+      }
+    }
   }
 }
 
 var _spawnCreep = function(spawn, energy, count) {
   count = count ? count : 0
   var roles = ['harvester', 'upgrader', 'builder']
-  var maxCreepCount = 4
   if(_getCreepCount(roles[count]) < maxCreepCount) {
     var creepTemplate = _getHighestLevelTemplate(energy)
     if(creepTemplate) {
@@ -26,6 +48,14 @@ var _spawnCreep = function(spawn, energy, count) {
   } else {
     return
   }
+}
+
+var _specialOrderIsValid = function(specialOrder) {
+  if((specialOrder.template || specialOrder.bodyParts) && (specialOrder.role && specialOrder.level)) {
+    return true
+  }
+  console.log('Bad order object should be: {template: templateName || bodyParts: [PARTS], role: roleName, level: #}')
+  return false
 }
 
 var _getCreepCount = function(creepRole) {
@@ -54,17 +84,25 @@ var _getHighestLevelTemplate = function(energy) {
   return highestAffordableTemplate
 }
 
-/**
-  BodyPart Prices:
-  tough: 10
-  move: 50
-  carry: 50
-  attack: 80
-  work: 100
-  ranged_attack:150
-  heal: 250
-  claim: 600
-**/
+var _energyIsAvailableToBreed = function(bodyParts) {
+  var prices = {
+    tough: 10,
+    move: 50,
+    carry: 50,
+    attack: 80,
+    work: 100,
+    ranged_attack: 150,
+    heal: 250,
+    claim: 600
+  }
+  var availableEnergy = _getAvailableSpawnEnergy()
+  var totalCost = -1
+
+  for(var i = 0; i < bodyParts.length; i++) {
+    totalCost = totalCost + prices[bodyParts[i]]
+  }
+  return totalCost > -1 && totalCost <= availableEnergy
+}
 
 var _baseCreeps = {
   levelZero: {
@@ -74,17 +112,17 @@ var _baseCreeps = {
   },
   levelOne: {
     level: 1,
-    bodyParts: [WORK, WORK, MOVE, CARRY],
+    bodyParts: [WORK, MOVE, MOVE, CARRY, CARRY],
     price: 300
   },
   levelTwo: {
     level: 2,
-    bodyParts: [WORK, WORK, MOVE, CARRY, CARRY],
+    bodyParts: [WORK, MOVE, MOVE, CARRY, CARRY, CARRY],
     price: 350
   },
   levelThree: {
     level: 3,
-    bodyParts: [WORK, WORK, WORK, MOVE, MOVE, CARRY, CARRY],
+    bodyParts: [WORK, WORK, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
     price: 500
   }
 }
