@@ -1,7 +1,9 @@
-var spawner = require('spawn.creator');
-var creepRunner = require('creep.runner');
-var creepClean = require('creep.deathPanel');
-var towerRunner = require('tower.runner');
+var roomName = 'W5N8'
+
+var spawner = require('spawn.creator')
+var creepRunner = require('creep.runner')
+var creepClean = require('creep.deathPanel')
+var towerRunner = require('tower.runner')
 
 module.exports.loop = function () {
   spawner.breed()
@@ -9,34 +11,27 @@ module.exports.loop = function () {
   towerRunner.run()
   creepRunner.run()
   creepClean.purge()
+  checkForEnemies()
+  hackFixRoleLessCreeps()
+}
 
+var checkForEnemies = function() {
+  var invaders = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS)
+  var count = 0
+  for(var creep in invaders) {
+    count++
+  }
+  if(count > 0) console.log(`THERE ARE ${count} INVADERS IN THE ROOM`)
 
+}
 
-    // var tower = Game.getObjectById('05c895bddb70a9e195730476');
-    // if(tower) {
-    //     var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-    //         filter: (structure) => structure.hits < structure.hitsMax
-    //     });
-    //     if(closestDamagedStructure) {
-    //         tower.repair(closestDamagedStructure);
-    //     }
-    //
-    //     var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-    //     if(closestHostile) {
-    //         tower.attack(closestHostile);
-    //     }
-    // }
-    //
-    // for(var name in Game.creeps) {
-    //     var creep = Game.creeps[name];
-    //     if(creep.memory.role == 'harvester') {
-    //         roleHarvester.run(creep);
-    //     }
-    //     if(creep.memory.role == 'upgrader') {
-    //         roleUpgrader.run(creep);
-    //     }
-    //     if(creep.memory.role == 'builder') {
-    //         roleBuilder.run(creep);
-    //     }
-    // }
+var hackFixRoleLessCreeps = function() {
+  for(var creep in Game.creeps) {
+    if(!Game.creeps[creep].memory) {
+      Game.creeps[creep].memory = {'role': 'harvester'}
+    }
+    if(!Game.creeps[creep].memory.role) {
+      Game.creeps[creep].memory['role'] = 'harvester'
+    }
+  }
 }

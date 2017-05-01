@@ -1,3 +1,5 @@
+var structures = require('structure.helper')
+
 module.exports = {
   /** @param {Creep} creep **/
   harvest: function(creep) {
@@ -15,6 +17,69 @@ module.exports = {
   build: function(creep) {
     _say(creep, '🏗 build')
     _headToBuildTargetAndBuild(creep)
+  },
+  murder: function(creep, target) {
+    _say(creep, 'MURDER')
+    _headToEnemyAndAttack(creep)
+  },
+  getClosestTarget: function(creep) {
+    return _getTarget(creep)
+  },
+  reloadTowers: function(creep) {
+    _reloadTower(creep)
+  }
+}
+
+var _reloadTower = function(creep) {
+  var tower = structures.findNeedyTower(creep)
+  if(tower) {
+    _say(creep, 'reload')
+    if(creep.memory['storage'] == 'full') {
+      _headToTowerAndDepositEnergy(creep, tower)
+    } else {
+      _withdrawEnergyFromBank(creep)
+    }
+  }
+}
+
+var _headToEnemyAndAttack = function(creep) {
+  var target = creep.memory['target'] || _getTarget(creep)
+  if(target) {
+    creep.memory['target'] = target
+    var attackResults = creep.attack(target)
+    if(attackResults == ERR_NOT_IN_RANGE) creep.moveTo(target)
+    if(attackResults == ERR_INVALID_TARGET) delete(creep.memory['target'])
+  }
+}
+
+var _getTarget = function(creep) {
+  if(creep.memory['target']) {
+    return creep.memory.target
+  } else {
+    var closestHostileCreep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+    if(closestHostileCreep) {
+      creep.memory['target'] = closestHostileCreep
+      return closestHostileCreep
+    } else {
+      return null
+    }
+  }
+}
+
+var _withdrawEnergyFromBank = function(creep) {
+  var bank
+  if(creep.memory['bank']) {
+    bank = Game.getObjectById(creep.memory['bank'])
+  } else {
+    bank = structures.findClosestEnergyToWithdraw(creep)
+  }
+  if(bank) creep.memory['bank'] = bank.id
+  var withdrawResults = creep.withdraw(bank, RESOURCE_ENERGY)
+  if(withdrawResults == ERR_NOT_IN_RANGE) creep.moveTo(bank)
+  if(withdrawResults == ERR_NOT_ENOUGH_RESOURCES) delete(creep.memory.bank)
+  if(creep.carryCapacity == creep.carry.energy) {
+    creep.memory['storage'] = 'full'
+    delete(creep.memory.bank)
   }
 }
 
@@ -38,17 +103,18 @@ var _headToEnergySourceAndHarvest = function(creep) {
   }
 }
 
+// ToDo:  Change this to locate closest deposit target, include containers
+
 var _headToDepositTargetAndDepositEnergy = function(creep) {
-  var targets = creep.room.find(FIND_STRUCTURES, {
+  var targets = creep.room.find(FIND_MY_STRUCTURES, {
     filter: (structure) => {
-      return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER) &&
+      return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER || structure.structureType == STRUCTURE_STORAGE) &&
       structure.energy < structure.energyCapacity;
     }
   })
-  if(targets.length > 0) {
-    if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
-    }
+  if(targets.length > 0 && creep.memory['storage'] == 'full') {
+    var transferResult = creep.transfer(targets[0], RESOURCE_ENERGY)
+    if(transferResult == ERR_NOT_IN_RANGE) creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}})
     if(creep.carry.energy == 0) {
       _say(creep, '✔ deposit complete')
       creep.memory['storage'] = 'empty'
@@ -58,12 +124,22 @@ var _headToDepositTargetAndDepositEnergy = function(creep) {
   }
 }
 
+var _headToTowerAndDepositEnergy = function(creep, tower) {
+  var transferResults = creep.transfer(tower, RESOURCE_ENERGY)
+  if(transferResults == ERR_NOT_IN_RANGE) creep.moveTo(tower, {visualizePathStyle: {stroke: '#eeeeee'}})
+  if(transferResults == ERR_FULL && creep.carry.energy > 0) _headToDepositTargetAndDepositEnergy(creep)
+  if(creep.carry.energy == 0) {
+    _say(creep, '✔ deposit complete')
+    creep.memory['storage'] = 'empty'
+  }
+}
+
 var _headToUpgradeTargetAndUpgrade = function(creep) {
   creep.memory.upgrading = true
   var upgradeResults = creep.upgradeController(creep.room.controller)
   if(upgradeResults == ERR_NOT_IN_RANGE) creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}})
   if(upgradeResults == ERR_NOT_ENOUGH_RESOURCES) {
-    _say(creep, '📉 need mineral')
+    _say(creep, '📉 need NRG')
     creep.memory['storage'] = 'empty'
     creep.memory.upgrading = false
   }
@@ -76,7 +152,7 @@ var _headToBuildTargetAndBuild = function(creep) {
     var buildResults = creep.build(target)
     if(buildResults == ERR_NOT_IN_RANGE) creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})
     if(buildResults == ERR_NOT_ENOUGH_RESOURCES) {
-      _say(creep, '📉 need mineral')
+      _say(creep, '📉 need NRG')
       creep.memory.storage = 'empty'
       creep.memory.building = false
     }
@@ -97,7 +173,7 @@ var _headToHangout = function(creep) {
 }
 
 var _getAvailableSource = function(creep, callback) {
-  var excludeSources = ['087f164ee2a67d652ca052be']
+  var excludeSources = []
   if(creep.memory['source']) {
     return callback(Game.getObjectById(creep.memory.source))
   } else {

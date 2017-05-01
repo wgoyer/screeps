@@ -24,6 +24,6 @@ var _findAndRepairStructure = function(tower) {
 
 var _findAndHealCreep = function(tower) {
   var filter = {filter: function(creep) { return creep.hits < creep.hitsMax }}
-  var closestDamagedCreep = tower.pos.findClosestByRange(FIND_CREEPS, filter)
+  var closestDamagedCreep = tower.pos.findClosestByRange(FIND_MY_CREEPS, filter)
   if(closestDamagedCreep) tower.heal(closestDamagedCreep)
 }
