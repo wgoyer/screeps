@@ -1,3 +1,5 @@
+var creepHelper = require('creep.helper')
+
 var roleHarvester = require('role.harvester')
 var roleUpgrader = require('role.upgrader')
 var roleBuilder = require('role.builder')
@@ -7,7 +9,7 @@ var roles = ['harvester', 'upgrader', 'builder']
 var roomName = 'W5N8'
 module.exports = {
   run: function() {
-    var creeps = _getCreeps()
+    var creeps = creepHelper.getCreeps()
     for(var i = 0; i < creeps.length; i++) {
       if(creeps[i].memory.role == 'harvester') {
         if(_spawnHasCapacity()) {
@@ -21,20 +23,12 @@ module.exports = {
         if(_buildTargetExists()) {
           roleBuilder.run(creeps[i])
         } else {
-          roleUpgrader.run(creeps[i])
+          roleHarvester.run(creeps[i])
         }
       }
       if(creeps[i].memory.role == 'defender') roleDefender.run(creeps[i])
     }
   }
-}
-
-var _getCreeps = function() {
-  var creeps = []
-  for(var creep in Game.creeps) {
-    creeps.push(Game.creeps[creep])
-  }
-  return creeps
 }
 
 var _buildTargetExists = function() {
