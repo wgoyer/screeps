@@ -18,7 +18,7 @@ module.exports = {
     _say(creep, '🏗 build')
     _headToBuildTargetAndBuild(creep)
   },
-  murder: function(creep, target) {
+  murder: function(creep) {
     _say(creep, 'MURDER')
     _headToEnemyAndAttack(creep)
   },
@@ -90,7 +90,6 @@ var _headToEnergySourceAndHarvest = function(creep) {
       if(source) {
         creep.memory['source'] = source.id
         harvestResults = creep.harvest(source)
-        if(harvestResults == OK) _say(creep,'💲')
         if(harvestResults == ERR_NOT_IN_RANGE) creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}})
       } else {
         _headToHangout(creep)
