@@ -1,6 +1,8 @@
 var roleHarvester = require('role.harvester')
 var roleUpgrader = require('role.upgrader')
 var roleBuilder = require('role.builder')
+var roleDefender = require('role.defender')
+
 var roles = ['harvester', 'upgrader', 'builder']
 var roomName = 'W5N8'
 module.exports = {
@@ -22,6 +24,7 @@ module.exports = {
           roleUpgrader.run(creeps[i])
         }
       }
+      if(creeps[i].memory.role == 'defender') roleDefender.run(creeps[i])
     }
   }
 }

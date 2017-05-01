@@ -20,6 +20,29 @@ module.exports = {
     return _getStructuresFromRoom('tower')
   },
 
+  findNeedyTower: function(creep) {
+    var filter = {
+      filter: function(structure) {
+        return structure.structureType == STRUCTURE_TOWER &&
+          structure.energy < structure.energyCapacity
+      }
+    }
+    var towers = _getStructuresFromRoom('tower')
+    return creep.pos.findClosestByPath(towers, filter)
+  },
+
+  findClosestEnergyToWithdraw: function(creep) {
+    var containersWithEnergy = _getContainersWithEnergy(creep)
+    if(containersWithEnergy.length > 0) {
+      return creep.pos.findClosestByPath(FIND_MY_STRUCTURES, containersWithEnergy)
+    } else {
+      var spawnFilter = {filter: function(structure) {
+        return structure.structureType == STRUCTURE_SPAWN && structure.energy > creep.carryCapacity
+      }}
+      return creep.pos.findClosestByPath(FIND_MY_STRUCTURES, spawnFilter)
+    }
+  },
+
   /** @param {structureType} structureType **/
   findSpecialOrders: function(structureType, orderType) {
     var filter = {
@@ -37,6 +60,13 @@ module.exports = {
 var _getStructuresFromRoom = function(structureType) {
   var filter = {filter: {structureType: structureType}}
   return Game.rooms[roomName].find(FIND_STRUCTURES, filter)
+}
+
+var _getContainersWithEnergy = function(creep) {
+  var containerFilter = {filter: function(structure) {
+    return (structure.structureType == STRUCTURE_STORAGE || structure.structureType == STRUCTURE_CONTAINER) && structure.store.energy > creep.carryCapacity
+  }}
+  return creep.room.find(FIND_MY_STRUCTURES, containerFilter)
 }
 
 var _getMyStructuresFromRoom = function(structureType) {
