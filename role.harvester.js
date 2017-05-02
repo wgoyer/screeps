@@ -1,13 +1,19 @@
-var actions = require('creep.actions')
+var actions = require('creep.actions'),
+    cHelper = require('creep.helper'),
+    sHelper = require('structure.helper'),
+    rHelper = require('room.helper')
+
 var roleHarvester = {
   /** @param {Creep} creep **/
   run: function(creep) {
-    if(creep.memory['storage'] && creep.memory.storage == 'full') {
-      actions.deposit(creep)
-    } else {
-      actions.harvest(creep)
-    }
+    var room = rHelper.getRoomFromCreep(creep),
+        creepHasNRG = cHelper.creepHasEnergy(creep),
+        roomHasCapacity = rHelper.roomHasEnergyCapacity(room)
+
+    if(!creepHasNRG) return actions.harvest(creep)
+    if(creepHasNRG && roomHasCapacity) return actions.deposit(creep)
+    if(creepHasNRG && !roomHasCapacity) return actions.upgrade(creep)
   }
 }
 
-module.exports = roleHarvester;
+module.exports = roleHarvester

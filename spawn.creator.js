@@ -3,8 +3,6 @@ var roomHelper = require('room.helper')
 var structures = require('structure.helper')
 
 var roomName = 'W5N8'
-var maxCreepCount = 5
-var maxDefenderCount = 2
 module.exports = {
   breed: function() {
     _spawnCreep()
@@ -19,6 +17,7 @@ var _spawnCreep = function() {
     if(role) {
       var template = _getHighestLevelTemplate(energy, role)
       if(template) {
+        console.log(`Spawning: ${role.name}`)
         spawn.createCreep(template.bodyParts, {role: role.name, level: template.level})
       }
     }

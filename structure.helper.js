@@ -1,5 +1,6 @@
 var roomName = 'W5N8'
 module.exports = {
+
   findBuildTarget: function() {
     return Game.rooms[roomName].find(FIND_MY_CONSTRUCTION_SITES)[0] || null
   },
@@ -95,6 +96,19 @@ var _getStructuresWithAvailableEnergyForWithdraw = function() {
   })
 }
 
+var _getStructuresWithRoomForEnergy = function(room) {
+  var energyStructuresFilter = {filter: function(structure) {
+    return (structureType == STRUCTURE_SPAWN || structureType == STRUCTURE_EXTENSION || structureType == STRUCTURE_TOWER) && structure.energyCapacity > structure.energy
+  }}
+  var energyStructures = room.find(FIND_MY_STRUCTURES, energyStructuresFilter)
+  if(energyStructures) return energyStructures
+
+  var storageStructuresFilter = {filter: function(structure) {
+    return (structureType == STRUCTURE_CONTAINER || STRUCTURE_STORAGE) && structure.storeCapacity > structure.store.energy
+  }}
+  return room.find(FIND_MY_STRUCTURES, storageStructuresFilter)
+}
+
 var _getAvailableSpawns = function() {
   return Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
     filter: function(structure){
@@ -102,34 +116,3 @@ var _getAvailableSpawns = function() {
     }
   })
 }
-
-// Game.rooms['sim'].find(FIND_MY_STRUCTURES, function(structure) {structure.energy < structure.energyCapacity})
-// Game.rooms['sim'].find(FIND_MY_STRUCTURES, function(structure) {structure.energy && structure.energyCapacity && structure.energy < structure.energyCapacity})
-//
-// Game.rooms['sim'].find(FIND_MY_STRUCTURES, {
-//   filter: function(structure) {
-//     return structure.energy < structure.energyCapacity
-//   }
-// })
-
-/** Structure Types
-    STRUCTURE_SPAWN: "spawn",
-    STRUCTURE_EXTENSION: "extension",
-    STRUCTURE_ROAD: "road",
-    STRUCTURE_WALL: "constructedWall",
-    STRUCTURE_RAMPART: "rampart",
-    STRUCTURE_KEEPER_LAIR: "keeperLair",
-    STRUCTURE_PORTAL: "portal",
-    STRUCTURE_CONTROLLER: "controller",
-    STRUCTURE_LINK: "link",
-    STRUCTURE_STORAGE: "storage",
-    STRUCTURE_TOWER: "tower",
-    STRUCTURE_OBSERVER: "observer",
-    STRUCTURE_POWER_BANK: "powerBank",
-    STRUCTURE_POWER_SPAWN: "powerSpawn",
-    STRUCTURE_EXTRACTOR: "extractor",
-    STRUCTURE_LAB: "lab",
-    STRUCTURE_TERMINAL: "terminal",
-    STRUCTURE_CONTAINER: "container",
-    STRUCTURE_NUKER: "nuker"
-**/
