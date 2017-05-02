@@ -11,6 +11,10 @@ module.exports = {
     }
   },
 
+  creepHasEnergy: function(creep) {
+    return creep.memory && creep.memory.storage == 'full'
+  },
+
   getCreepCount: function(creepRole) {
     var creepCount = 0
     for(var creep in Game.creeps) {
