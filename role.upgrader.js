@@ -1,12 +1,18 @@
 var actions = require('creep.actions')
+var cHelper = require('creep.helper')
+var rHelper = require('room.helper')
+
+
 var roleUpgrader = {
   /** @param {Creep} creep **/
   run: function(creep) {
-    if(creep.memory['storage'] && creep.memory.storage == 'full') {
-      actions.upgrade(creep)
-    } else {
-      actions.harvest(creep)
-    }
+    var room = rHelper.getRoomFromCreep(creep),
+        creepHasNRG = cHelper.creepHasEnergy(creep),
+        roomHasNRG = rHelper.roomHasWithdrawableEnergy(creep)
+
+    if(creepHasNRG) return actions.upgrade(creep)
+    if(!creepHasNRG && roomHasNRG) return actions.withdrawEnergy(creep)
+    if(!creepHasNRG && !roomHasNRG) return actions.harvest(creep)
   }
 }
 

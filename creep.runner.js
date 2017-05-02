@@ -1,41 +1,26 @@
-var creepHelper = require('creep.helper')
+var cHelper = require('creep.helper'),
+    roleHarvester = require('role.harvester'),
+    roleUpgrader = require('role.upgrader'),
+    roleBuilder = require('role.builder'),
+    roleDefender = require('role.defender')
 
-var roleHarvester = require('role.harvester')
-var roleUpgrader = require('role.upgrader')
-var roleBuilder = require('role.builder')
-var roleDefender = require('role.defender')
-
-var roles = ['harvester', 'upgrader', 'builder']
-var roomName = 'W5N8'
 module.exports = {
   run: function() {
-    var creeps = creepHelper.getCreeps()
+    var creeps = cHelper.getCreeps()
     for(var i = 0; i < creeps.length; i++) {
-      if(creeps[i].memory.role == 'harvester') {
-        if(_spawnHasCapacity()) {
-          roleHarvester.run(creeps[i])
-        } else {
-          roleUpgrader.run(creeps[i])
-        }
-      }
+      if(creeps[i].memory.role == 'harvester') roleHarvester.run(creeps[i])
       if(creeps[i].memory.role == 'upgrader') roleUpgrader.run(creeps[i])
-      if(creeps[i].memory.role == 'builder') {
-        if(_buildTargetExists()) {
-          roleBuilder.run(creeps[i])
-        } else {
-          roleHarvester.run(creeps[i])
-        }
-      }
+      if(creeps[i].memory.role == 'builder') roleBuilder.run(creeps[i])
       if(creeps[i].memory.role == 'defender') roleDefender.run(creeps[i])
     }
   }
 }
 
-var _buildTargetExists = function() {
-  return Game.rooms[roomName].find(FIND_CONSTRUCTION_SITES).length > 0
-}
+// var _buildTargetExists = function() {
+//   return Game.rooms[roomName].find(FIND_CONSTRUCTION_SITES).length > 0
+// }
 
-var _spawnHasCapacity = function() {
-  var room = Game.rooms[roomName]
-  return room.energyCapacityAvailable > room.energyAvailable
-}
+// var _spawnHasCapacity = function() {
+//   var room = Game.rooms[roomName]
+//   return room.energyCapacityAvailable > room.energyAvailable
+// }
