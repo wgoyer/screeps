@@ -34,7 +34,7 @@ module.exports = {
   findClosestEnergyToWithdraw: function(creep) {
     var containersWithEnergy = _getContainersWithEnergy(creep)
     if(containersWithEnergy.length > 0) {
-      return creep.pos.findClosestByPath(FIND_MY_STRUCTURES, containersWithEnergy)
+      return creep.pos.findClosestByPath(containersWithEnergy)
     } else {
       var spawnFilter = {filter: function(structure) {
         return structure.structureType == STRUCTURE_SPAWN && structure.energy > creep.carryCapacity

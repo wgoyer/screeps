@@ -102,25 +102,36 @@ var _headToEnergySourceAndHarvest = function(creep) {
   }
 }
 
-// ToDo:  Change this to locate closest deposit target, include containers
-
 var _headToDepositTargetAndDepositEnergy = function(creep) {
-  var targets = creep.room.find(FIND_MY_STRUCTURES, {
-    filter: (structure) => {
-      return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER || structure.structureType == STRUCTURE_STORAGE) &&
-      structure.energy < structure.energyCapacity;
-    }
-  })
-  if(targets.length > 0 && creep.memory['storage'] == 'full') {
-    var transferResult = creep.transfer(targets[0], RESOURCE_ENERGY)
-    if(transferResult == ERR_NOT_IN_RANGE) creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}})
-    if(creep.carry.energy == 0) {
-      _say(creep, '✔ deposit complete')
-      creep.memory['storage'] = 'empty'
-    }
-  } else {
-    _headToHangout(creep)
+  var energyTargetsFilter = {filter: (structure) => {
+      return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity}
   }
+
+  var energyTargets = creep.room.find(FIND_MY_STRUCTURES, energyTargetsFilter)
+  var closestEnergyRepo = creep.pos.findClosestByPath(energyTargets)
+
+  var targetToUse
+  if(closestEnergyRepo) {
+    targetToUse = closestEnergyRepo
+  } else {
+    var containerTargetsFilter = {filter: (structure) => {
+        return (structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_STORAGE) && structure.store.energy < structure.storeCapacity}
+    }
+    var containerTargets = creep.room.find(FIND_MY_STRUCTURES, containerTargetsFilter)
+    if(containerTargets) {
+      var containerTarget = creep.pos.findClosestByPath(containerTargets)
+      targetToUse = containerTarget
+    } else {
+      return _headToHangout(creep)
+    }
+  }
+  var transferResult = creep.transfer(targetToUse, RESOURCE_ENERGY)
+  if(transferResult == ERR_NOT_IN_RANGE) creep.moveTo(targetToUse, {visualizePathStyle: {stroke: '#ffffff'}})
+  if(creep.carry.energy == 0) {
+    _say(creep, '✔ deposit complete')
+    creep.memory['storage'] = 'empty'
+  }
+
 }
 
 var _headToTowerAndDepositEnergy = function(creep, tower) {
