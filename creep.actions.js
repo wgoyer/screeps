@@ -6,27 +6,37 @@ module.exports = {
     _say(creep, '⛏ harvest')
     _headToEnergySourceAndHarvest(creep)
   },
+
   deposit: function(creep) {
     _say(creep, '💰 deposit')
     _headToDepositTargetAndDepositEnergy(creep)
   },
+
   upgrade: function(creep) {
     _say(creep, '✔ upgrade')
     _headToUpgradeTargetAndUpgrade(creep)
   },
-  build: function(creep) {
+
+  build: function(creep, target) {
     _say(creep, '🏗 build')
-    _headToBuildTargetAndBuild(creep)
+    _headToBuildTargetAndBuild(creep, target)
   },
+
   murder: function(creep) {
     _say(creep, 'MURDER')
     _headToEnemyAndAttack(creep)
   },
-  getClosestTarget: function(creep) {
-    return _getTarget(creep)
+
+  getClosestEnemyTarget: function(creep) {
+    return _getEnemyTarget(creep)
   },
+
   reloadTowers: function(creep) {
     _reloadTower(creep)
+  },
+
+  withdrawEnergy: function(creep) {
+    _withdrawEnergyFromBank(creep)
   }
 }
 
@@ -43,7 +53,7 @@ var _reloadTower = function(creep) {
 }
 
 var _headToEnemyAndAttack = function(creep) {
-  var target = creep.memory['target'] || _getTarget(creep)
+  var target = creep.memory['target'] || _getEnemyTarget(creep)
   if(target) {
     creep.memory['target'] = target
     var attackResults = creep.attack(target)
@@ -52,7 +62,7 @@ var _headToEnemyAndAttack = function(creep) {
   }
 }
 
-var _getTarget = function(creep) {
+var _getEnemyTarget = function(creep) {
   if(creep.memory['target']) {
     return creep.memory.target
   } else {
@@ -149,25 +159,21 @@ var _headToUpgradeTargetAndUpgrade = function(creep) {
   var upgradeResults = creep.upgradeController(creep.room.controller)
   if(upgradeResults == ERR_NOT_IN_RANGE) creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}})
   if(upgradeResults == ERR_NOT_ENOUGH_RESOURCES) {
-    _say(creep, '📉 need NRG')
+    _say(creep, '📉 no NRG')
     creep.memory['storage'] = 'empty'
     creep.memory.upgrading = false
   }
 }
 
-var _headToBuildTargetAndBuild = function(creep) {
-  var target = creep.room.find(FIND_CONSTRUCTION_SITES) ? creep.room.find(FIND_CONSTRUCTION_SITES)[0] : null
-  if(target) {
-    creep.memory.building = true
-    var buildResults = creep.build(target)
-    if(buildResults == ERR_NOT_IN_RANGE) creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})
-    if(buildResults == ERR_NOT_ENOUGH_RESOURCES) {
-      _say(creep, '📉 need NRG')
-      creep.memory.storage = 'empty'
-      creep.memory.building = false
-    }
-  } else {
-    _headToHangout(creep)
+var _headToBuildTargetAndBuild = function(creep, buildTarget) {
+  if(!buildTarget) return
+  creep.memory.building = true
+  var buildResults = creep.build(buildTarget)
+  if(buildResults == ERR_NOT_IN_RANGE) creep.moveTo(buildTarget, {visualizePathStyle: {stroke: '#ffffff'}})
+  if(buildResults == ERR_NOT_ENOUGH_RESOURCES) {
+    _say(creep, '📉 no NRG')
+    creep.memory.storage = 'empty'
+    creep.memory.building = false
   }
 }
 
