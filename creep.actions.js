@@ -10,7 +10,7 @@ module.exports = {
 
   deposit: function(creep) {
     _say(creep, '💰 deposit')
-    _newHeadToDepositTargetAndDepositEnergy(creep)
+    _headToDepositTargetAndDepositEnergy(creep)
   },
 
   upgrade: function(creep) {
@@ -38,6 +38,10 @@ module.exports = {
 
   withdrawEnergy: function(creep) {
     _withdrawEnergyFromBank(creep)
+  },
+
+  invade: function(creep) {
+    _headToInvasionFlag(creep)
   }
 }
 
@@ -112,7 +116,7 @@ var _headToEnergySourceAndHarvest = function(creep) {
   }
 }
 
-var _newHeadToDepositTargetAndDepositEnergy = function(creep) {
+var _headToDepositTargetAndDepositEnergy = function(creep) {
   var depository = _getDepositTarget(creep)
   if(depository) {
     var transferResults
@@ -143,37 +147,6 @@ var _getDepositTarget = function(creep) {
 
   structs = sHelper.findContainersThatNeedEnergy(room)
   if(structs.length > 0) return creep.pos.findClosestByPath(structs)
-}
-// ToDo:  Break this up
-var _headToDepositTargetAndDepositEnergy = function(creep) {
-  var energyTargetsFilter = {filter: (structure) => {
-    return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity}
-  }
-
-  var energyTargets = creep.room.find(FIND_MY_STRUCTURES, energyTargetsFilter)
-  var closestEnergyRepo = creep.pos.findClosestByPath(energyTargets)
-
-  var targetToUse
-  if(closestEnergyRepo) {
-    targetToUse = closestEnergyRepo
-  } else {
-    var containerTargetsFilter = {filter: (structure) => {
-        return (structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_STORAGE) && structure.store.energy < structure.storeCapacity}
-    }
-    var containerTargets = creep.room.find(FIND_MY_STRUCTURES, containerTargetsFilter)
-    if(containerTargets) {
-      var containerTarget = creep.pos.findClosestByPath(containerTargets)
-      targetToUse = containerTarget
-    } else {
-      return _headToHangout(creep)
-    }
-  }
-  var transferResult = creep.transfer(targetToUse, RESOURCE_ENERGY)
-  if(transferResult == ERR_NOT_IN_RANGE) creep.moveTo(targetToUse, {visualizePathStyle: {stroke: '#ffffff'}})
-  if(creep.carry.energy == 0) {
-    _say(creep, '✔ deposit complete')
-    creep.memory['storage'] = 'empty'
-  }
 }
 
 var _headToTowerAndDepositEnergy = function(creep, tower) {
@@ -222,6 +195,16 @@ var _headToHangout = function(creep) {
   for(var flag in flags) {
     if(Game.flags[flag].memory.roles.indexOf(role) > -1) {
       creep.moveTo(Game.flags[flag], {visualizePathStyle: {stroke: '#f4e842'}})
+    }
+  }
+}
+
+var _headToInvasionFlag = function(creep) {
+  creep.memory['invading'] = true
+  for(var flag in Game.flags) {
+    if(Game.flags[flag].memory.roles.indexOf(creep.memory['role']) > 1) {
+      if(creep.room == flag.room) return
+      if(creep.room != flag.room) return creep.moveto(flag, {visualizePathStyle: {stroke: '#f4e842'}})
     }
   }
 }

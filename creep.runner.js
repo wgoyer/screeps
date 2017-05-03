@@ -2,7 +2,9 @@ var cHelper = require('creep.helper'),
     roleHarvester = require('role.harvester'),
     roleUpgrader = require('role.upgrader'),
     roleBuilder = require('role.builder'),
-    roleDefender = require('role.defender')
+    roleDefender = require('role.defender'),
+    roleInvader = require('role.invader'),
+    roleClaimer = require('role.claimer')
 
 module.exports = {
   run: function() {
@@ -12,6 +14,8 @@ module.exports = {
       if(creeps[i].memory.role == 'upgrader') roleUpgrader.run(creeps[i])
       if(creeps[i].memory.role == 'builder') roleBuilder.run(creeps[i])
       if(creeps[i].memory.role == 'defender') roleDefender.run(creeps[i])
+      if(creeps[i].memory.role == 'invader') roleInvader.run(creeps[i])
+      if(creeps[i].memory.role == 'claimer') roleClaimer.run(creeps[i])
     }
   }
 }

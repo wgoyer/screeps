@@ -16,7 +16,7 @@ var _spawnCreep = function() {
     var role = _getMostNeededRole()
     if(role) {
       var template = _getHighestLevelTemplate(energy, role)
-      if(template) {
+      if(template && _preRequisiteIsMet(template)) {
         var creepName = spawn.createCreep(template.bodyParts, {role: role.name, level: template.level})
         console.log(`Spawned: ${creepName} - ${role.name}`)
       }
@@ -40,6 +40,15 @@ var _getMostNeededRole = function() {
     for(var role in roles) {
       if(roles[role].priority == 0) return roles[role]
     }
+  }
+}
+
+var _preRequisiteIsMet = function(template) {
+  var preRequisite = template.preRequisite
+  if(!preRequisite) return true
+  if(preRequisite.type == 'memory') {
+    var keyValue = Memory[preRequisite.key]
+    if(preRequisite.value == 'boolean') return keyValue || false
   }
 }
 
