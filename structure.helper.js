@@ -2,29 +2,17 @@ var rHelper = require('room.helper')
 var roomName = 'W5N8'
 module.exports = {
 
-  findBuildTarget: function() {
-    return Game.rooms[roomName].find(FIND_MY_CONSTRUCTION_SITES)[0] || null
-  },
-
-  findEnergyDepository: function() {
-    return _getStructuresWithAvailableEnergyCapacity()[0] || null
-  },
-
-  findEnergyToWithdraw: function() {
-    return _getStructuresWithAvailableEnergyForWithdraw()[0] || null
-  },
-
   findAvailableSpawn: function() {
     return _getAvailableSpawns()[0] || null
   },
-
+  // ToDo:  Fix this to handle just MY structures, which means roads and walls have to be included separately
   findClosestDamagedStructure: function(requestor) {
     var filter = {filter: function(structure) { return structure.hits < structure.hitsMax }}
     return requestor.pos.findClosestByRange(FIND_STRUCTURES, filter)
   },
 
   findTowers: function() {
-    return _getStructuresFromRoom('tower')
+    return _getMyStructuresFromRooms('tower')
   },
 
   findBaseStructuresThatNeedEnergy: function(room) {
@@ -69,24 +57,17 @@ module.exports = {
     var allConstructionStructures = creep.room.find(FIND_MY_CONSTRUCTION_SITES)
     return creep.pos.findClosestByPath(allConstructionStructures)
   }
-
-  // /** @param {structureType} structureType **/
-  // findSpecialOrders: function(structureType, orderType) {
-  //   var filter = {
-  //     filter: function(structure) {
-  //       return structure.structureType == structureType &&
-  //         structure.memory &&
-  //         structure.memory.specialOrder &&
-  //         structure.memory.specialOrder.type == orderType
-  //     }
-  //   }
-  //   return Game.rooms[roomName].find(FIND_MY_STRUCTURES, filter)[0] || null
-  // }
 }
 
-var _getStructuresFromRoom = function(structureType) {
+var _getMyStructuresFromRooms = function(structureType) {
   var filter = {filter: {structureType: structureType}}
-  return Game.rooms[roomName].find(FIND_STRUCTURES, filter)
+  var returnStructures = [],
+      tempStructures = []
+  for(var room in Game.rooms) {
+    tempStructures = Game.rooms[room].find(FIND_MY_STRUCTURES, filter)
+    returnStructures = returnStructures.length > 0 ? returnStructures.concat(tempStructures) : tempStructures
+  }
+  return returnStructures
 }
 
 var _getContainersWithEnergy = function(creep) {
@@ -94,11 +75,6 @@ var _getContainersWithEnergy = function(creep) {
     return (structure.structureType == STRUCTURE_STORAGE || structure.structureType == STRUCTURE_CONTAINER) && structure.store.energy > creep.carryCapacity
   }}
   return creep.room.find(FIND_MY_STRUCTURES, containerFilter)
-}
-
-var _getMyStructuresFromRoom = function(structureType) {
-  var filter = {filter: {structureType: structureType}}
-  return Game.rooms[roomName].find(FIND_MY_STRUCTURES, filter)
 }
 
 var _getStructuresWithAvailableEnergyCapacity = function() {
@@ -150,4 +126,12 @@ var _getAvailableSpawns = function() {
       return !structure.spawning && structure.structureType == 'spawn'
     }
   })
+}
+
+var _getAllAvailableSpawns = function() {
+  var spawns = []
+  for(var spawn in Game.spawns) {
+    if(!spawn.spawning) spawns.push(spawn)
+  }
+  return spawns
 }

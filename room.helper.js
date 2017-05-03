@@ -4,6 +4,14 @@ module.exports = {
     if(creep) return _getRoomFromCreep(creep)
   },
 
+  getRoomFromSpawn: function(spawn) {
+    if(spawn) return Game.rooms[spawn.room.name]
+  },
+
+  getRoomAvailableSpawnEnergy: function(room) {
+    if(room) return room.energyAvailable
+  },
+
   roomHasEnergyCapacity: function(room) {
     if(room) return _roomHasEnergyCapacity(room)
   },
