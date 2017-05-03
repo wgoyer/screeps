@@ -1,8 +1,7 @@
-var creepHelper = require('creep.helper')
-var roomHelper = require('room.helper')
-var structures = require('structure.helper')
+var cHelper = require('creep.helper')
+var rHelper = require('room.helper')
+var sHelper = require('structure.helper')
 
-var roomName = 'W5N8'
 module.exports = {
   breed: function() {
     _spawnCreep()
@@ -10,10 +9,11 @@ module.exports = {
 }
 
 var _spawnCreep = function() {
-  var spawn = structures.findAvailableSpawn()
+  var spawn = sHelper.findAvailableSpawn()
   if(spawn) {
-    var energy = _getAvailableSpawnEnergy()
-    var role = _getMostNeededRole()
+    var room = rHelper.getRoomFromSpawn(spawn),
+        energy = rHelper.getRoomAvailableSpawnEnergy(room),
+        role = _getMostNeededRole()
     if(role) {
       var template = _getHighestLevelTemplate(energy, role)
       if(template && _preRequisiteIsMet(template)) {
@@ -25,15 +25,15 @@ var _spawnCreep = function() {
 }
 
 var _getMostNeededRole = function() {
-  var creeps = creepHelper.getCreeps()
-  var roles = creepHelper.getRoles()
+  var creeps = cHelper.getCreeps()
+  var roles = cHelper.getRoles()
   if(creeps) {
     for(var role in roles) {
-      if(roles[role].minCount > creepHelper.getCreepCount(role)) return roles[role]
+      if(roles[role].minCount > cHelper.getCreepCount(role)) return roles[role]
     }
 
     for(var role in roles) {
-      if(roles[role].maxCount > creepHelper.getCreepCount(role)) return roles[role]
+      if(roles[role].maxCount > cHelper.getCreepCount(role)) return roles[role]
     }
 
   } else {
@@ -50,10 +50,6 @@ var _preRequisiteIsMet = function(template) {
     var keyValue = Memory[preRequisite.key]
     if(preRequisite.value == 'boolean') return keyValue || false
   }
-}
-
-var _getAvailableSpawnEnergy = function() {
-  return Game.rooms[roomName].energyAvailable
 }
 
 var _getHighestLevelTemplate = function(energy, role) {

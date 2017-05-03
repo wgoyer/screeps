@@ -135,6 +135,7 @@ var _defenderCreeps = {
   }
 }
 
+// todo:  Change pre-req to be flag
 var _invaderCreeps = {
   levelZero: {
     level: 0,
@@ -145,6 +146,7 @@ var _invaderCreeps = {
   }
 }
 
+// todo: Change pre-req to be flag
 var _claimerCreeps = {
   levelZero: {
     level: 0,
