@@ -41,7 +41,11 @@ module.exports = {
   },
 
   invade: function(creep) {
-    _headToInvasionFlag(creep)
+    _newHeadToInvasionFlag(creep)
+  },
+
+  claim: function(creep) {
+    _headToClaimFlagAndClaimRoom(creep)
   }
 }
 
@@ -193,19 +197,69 @@ var _headToHangout = function(creep) {
   creep.memory['idle'] = true
   var flags = Game.flags
   for(var flag in flags) {
-    if(Game.flags[flag].memory.roles.indexOf(role) > -1) {
+    if(Game.flags[flag].memory.roles && Game.flags[flag].memory.roles.indexOf(role) > -1) {
       creep.moveTo(Game.flags[flag], {visualizePathStyle: {stroke: '#f4e842'}})
     }
   }
 }
 
-var _headToInvasionFlag = function(creep) {
-  creep.memory['invading'] = true
-  for(var flag in Game.flags) {
-    if(Game.flags[flag].memory.roles.indexOf(creep.memory['role']) > 1) {
-      if(creep.room == flag.room) return
-      if(creep.room != flag.room) return creep.moveto(flag, {visualizePathStyle: {stroke: '#f4e842'}})
+// var _headToInvasionFlag = function(creep) {
+//   creep.memory['invading'] = true
+//   for(var flag in Game.flags) {
+//     if(Game.flags[flag].memory.roles.indexOf(creep.memory['role']) > 1) {
+//       if(creep.room == flag.room) return
+//       if(creep.room != flag.room) return creep.moveTo(flag, {visualizePathStyle: {stroke: '#f4e842'}})
+//     }
+//   }
+// }
+
+var _newHeadToInvasionFlag = function(creep) {
+  var invasionFlag = _getInvasionFlag()
+  if(!invasionFlag) return
+  if(invasionFlag) {
+    if(creep.room != invasionFlag.room){
+      creep.memory['invading'] = 'moving'
+      return creep.moveTo(invasionFlag, {visualizePathStyle: {stroke: '#f4e842'}})
     }
+    if(creep.room == invasionFlag.room) return creep.memory['invading'] = 'done'
+  }
+}
+
+var _headToClaimFlagAndClaimRoom = function(creep) {
+  var claimFlag = _getclaimFlag()
+  if(!claimFlag) return
+  if(claimFlag) {
+    if(creep.room != claimFlag.room) {
+      creep.memory['claiming'] = 'moving'
+      return creep.moveTo(claimFlag, {visualizePathStyle: {stroke: '#FF0000'}})
+    }
+    if(creep.room == claimFlag.room){
+      if(creep.room.controller.my) {
+        claimFlag.remove()
+        return creep.memory['claiming'] = 'done'
+      } else {
+        var roomController = creep.room.controller,
+            claimResults = creep.claimController(roomController)
+
+        if(claimResults == ERR_NOT_IN_RANGE) return creep.moveTo(roomController)
+        if(claimResults == ERR_GCL_NOT_ENOUGH) return creep.reserveController(roomController)
+        if(claimResults == OK) return _say(creep, 'PWND')
+      }
+    }
+  }
+}
+
+var _getInvasionFlag = function() {
+  return _getFlagByName('invade')
+}
+
+var _getClaimFlag = function() {
+  return _getFlagByName('claim')
+}
+var _getFlagByName = function(flagName) {
+  for(var flag in Game.flags) {
+    if(flag.toLowerCase() == flagName.toLowerCase())
+    return Game.flags[flag]
   }
 }
 

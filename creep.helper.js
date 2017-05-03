@@ -11,6 +11,16 @@ module.exports = {
     }
   },
 
+  getCreepCountFromRoomByRole: function(room, role) {
+    var filter = {filter: function(creep) {return creep.memory.role == role}}
+    return room.find(FIND_MY_CREEPS, filter).length
+  },
+
+  getCreepCountFromRoomBySubRole: function(room, role) {
+    var filter = {filter: function(creep) {return creep.memory.subRole == role}}
+    return room.find(FIND_MY_CREEPS, filter).length
+  },
+
   creepHasEnergy: function(creep) {
     return creep.memory && creep.memory.storage == 'full'
   },
@@ -139,10 +149,10 @@ var _defenderCreeps = {
 var _invaderCreeps = {
   levelZero: {
     level: 0,
-    toughness: 5,
-    bodyParts: _addToughness([MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, WORK]),
+    toughness: 0,
+    bodyParts: [MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK],
     preRequisite: {type: 'memory', key: 'spawnInvader', value: 'boolean'},
-    price: 450
+    price: 700
   }
 }
 
