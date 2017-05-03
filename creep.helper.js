@@ -59,6 +59,20 @@ module.exports = {
         'maxCount': 0,
         'priority': 3,
         'template': _defenderCreeps
+      },
+      'invader': {
+        'name': 'invader',
+        'minCount': 0,
+        'maxCount': 3,
+        'priority': 4,
+        'template': _invaderCreeps
+      },
+      'claimer': {
+        'name': 'claimer',
+        'minCount': 0,
+        'maxCount': 1,
+        'priority': 5,
+        'template': _claimerCreeps
       }
     }
   }
@@ -118,5 +132,25 @@ var _defenderCreeps = {
     toughness: 35,
     bodyParts: _addToughness([MOVE, CARRY, RANGED_ATTACK, RANGED_ATTACK, MOVE], 35),
     price: 800
+  }
+}
+
+var _invaderCreeps = {
+  levelZero: {
+    level: 0,
+    toughness: 5,
+    bodyParts: _addToughness([MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, WORK]),
+    preRequisite: {type: 'memory', key: 'spawnInvader', value: 'boolean'},
+    price: 450
+  }
+}
+
+var _claimerCreeps = {
+  levelZero: {
+    level: 0,
+    toughness: 5,
+    bodyParts: _addToughness([MOVE, MOVE, MOVE, MOVE, MOVE, CLAIM], 5),
+    preRequisite: {type: 'memory', key: 'spawnClaimer', value: 'boolean'},
+    price: 850
   }
 }
