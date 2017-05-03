@@ -1,4 +1,5 @@
-var structures = require('structure.helper')
+var sHelper = require('structure.helper')
+var rHelper = require('room.helper')
 
 module.exports = {
   /** @param {Creep} creep **/
@@ -9,7 +10,7 @@ module.exports = {
 
   deposit: function(creep) {
     _say(creep, '💰 deposit')
-    _headToDepositTargetAndDepositEnergy(creep)
+    _newHeadToDepositTargetAndDepositEnergy(creep)
   },
 
   upgrade: function(creep) {
@@ -41,9 +42,8 @@ module.exports = {
 }
 
 var _reloadTower = function(creep) {
-  var tower = structures.findNeedyTower(creep)
+  var tower = creep.memory['tendingTower'] ? Game.getObjectById(creep.memory.tendingTower) : sHelper.findNeedyTower(creep)
   if(tower) {
-    _say(creep, 'reload')
     if(creep.memory['storage'] == 'full') {
       _headToTowerAndDepositEnergy(creep, tower)
     } else {
@@ -81,7 +81,7 @@ var _withdrawEnergyFromBank = function(creep) {
   if(creep.memory['bank']) {
     bank = Game.getObjectById(creep.memory['bank'])
   } else {
-    bank = structures.findClosestEnergyToWithdraw(creep)
+    bank = sHelper.findClosestEnergyToWithdraw(creep)
   }
   if(bank) creep.memory['bank'] = bank.id
   var withdrawResults = creep.withdraw(bank, RESOURCE_ENERGY)
@@ -112,9 +112,42 @@ var _headToEnergySourceAndHarvest = function(creep) {
   }
 }
 
+var _newHeadToDepositTargetAndDepositEnergy = function(creep) {
+  var depository = _getDepositTarget(creep)
+  if(depository) {
+    var transferResults
+    if(depository.structureType != 'tower') {
+      transferResults = creep.transfer(depository, RESOURCE_ENERGY)
+      if(transferResults == ERR_NOT_IN_RANGE) creep.moveTo(depository, {visualizePathStyle: {stroke: '#ffffff'}})
+      if(creep.carry.energy == 0) {
+        _say(creep, '✔ deposit complete')
+        creep.memory['storage'] = 'empty'
+      }
+    } else {
+      _reloadTower(creep)
+    }
+  }
+}
+
+var _getDepositTarget = function(creep) {
+  if(creep.memory['tendingTower']) return Game.getObjectById(creep.memory.tendingTower)
+  var energyDepo,
+      structs,
+      room = rHelper.getRoomFromCreep(creep)
+
+  structs = sHelper.findBaseStructuresThatNeedEnergy(room)
+  if(structs.length > 0) return creep.pos.findClosestByPath(structs)
+
+  structs = sHelper.findNeedyTower(creep)
+  if(structs) return structs
+
+  structs = sHelper.findContainersThatNeedEnergy(room)
+  if(structs.length > 0) return creep.pos.findClosestByPath(structs)
+}
+// ToDo:  Break this up
 var _headToDepositTargetAndDepositEnergy = function(creep) {
   var energyTargetsFilter = {filter: (structure) => {
-      return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity}
+    return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity}
   }
 
   var energyTargets = creep.room.find(FIND_MY_STRUCTURES, energyTargetsFilter)
@@ -141,15 +174,20 @@ var _headToDepositTargetAndDepositEnergy = function(creep) {
     _say(creep, '✔ deposit complete')
     creep.memory['storage'] = 'empty'
   }
-
 }
 
 var _headToTowerAndDepositEnergy = function(creep, tower) {
   var transferResults = creep.transfer(tower, RESOURCE_ENERGY)
   if(transferResults == ERR_NOT_IN_RANGE) creep.moveTo(tower, {visualizePathStyle: {stroke: '#eeeeee'}})
-  if(transferResults == ERR_FULL && creep.carry.energy > 0) _headToDepositTargetAndDepositEnergy(creep)
+  if(transferResults == ERR_FULL) {
+    delete(creep.memory.tendingTower)
+    Memory.towers[tower.id] = false
+    if(creep.carry.energy > 0) _headToDepositTargetAndDepositEnergy(creep)
+  }
   if(creep.carry.energy == 0) {
     _say(creep, '✔ deposit complete')
+    delete(creep.memory.tendingTower)
+    Memory.towers[tower.id] = false
     creep.memory['storage'] = 'empty'
   }
 }

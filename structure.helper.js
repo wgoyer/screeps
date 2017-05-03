@@ -1,3 +1,4 @@
+var rHelper = require('room.helper')
 var roomName = 'W5N8'
 module.exports = {
 
@@ -17,19 +18,39 @@ module.exports = {
     return _getAvailableSpawns()[0] || null
   },
 
+  findClosestDamagedStructure: function(requestor) {
+    var filter = {filter: function(structure) { return structure.hits < structure.hitsMax }}
+    return requestor.pos.findClosestByRange(FIND_STRUCTURES, filter)
+  },
+
   findTowers: function() {
     return _getStructuresFromRoom('tower')
   },
 
+  findBaseStructuresThatNeedEnergy: function(room) {
+    var energyTargetsFilter = {filter: (structure) => {
+      return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) && structure.energy < structure.energyCapacity}
+    }
+    return room.find(FIND_MY_STRUCTURES, energyTargetsFilter)
+  },
+
+  findContainersThatNeedEnergy: function(room) {
+    return _getContainersWithAvailableCapacity(room)
+  },
+
   findNeedyTower: function(creep) {
-    var filter = {
-      filter: function(structure) {
-        return structure.structureType == STRUCTURE_TOWER &&
-          structure.energy < structure.energyCapacity
+    var room = rHelper.getRoomFromCreep(creep)
+    var towers = _getTowersThatNeedEnergy(room)
+    if(towers) {
+      if(!Memory['towers']) Memory['towers'] = {}
+      for(var i = 0; i < towers.length; i++) {
+        if(!Memory.towers[towers[i].id]) {
+          creep.memory['tendingTower'] = towers[i].id
+          Memory['towers'][towers[i].id] = creep.id
+          return towers[i]
+        }
       }
     }
-    var towers = _getStructuresFromRoom('tower')
-    return creep.pos.findClosestByPath(towers, filter)
   },
 
   findClosestEnergyToWithdraw: function(creep) {
@@ -47,20 +68,20 @@ module.exports = {
   findClosestConstructionSite: function(creep) {
     var allConstructionStructures = creep.room.find(FIND_MY_CONSTRUCTION_SITES)
     return creep.pos.findClosestByPath(allConstructionStructures)
-  },
-
-  /** @param {structureType} structureType **/
-  findSpecialOrders: function(structureType, orderType) {
-    var filter = {
-      filter: function(structure) {
-        return structure.structureType == structureType &&
-          structure.memory &&
-          structure.memory.specialOrder &&
-          structure.memory.specialOrder.type == orderType
-      }
-    }
-    return Game.rooms[roomName].find(FIND_MY_STRUCTURES, filter)[0] || null
   }
+
+  // /** @param {structureType} structureType **/
+  // findSpecialOrders: function(structureType, orderType) {
+  //   var filter = {
+  //     filter: function(structure) {
+  //       return structure.structureType == structureType &&
+  //         structure.memory &&
+  //         structure.memory.specialOrder &&
+  //         structure.memory.specialOrder.type == orderType
+  //     }
+  //   }
+  //   return Game.rooms[roomName].find(FIND_MY_STRUCTURES, filter)[0] || null
+  // }
 }
 
 var _getStructuresFromRoom = function(structureType) {
@@ -107,6 +128,20 @@ var _getStructuresWithRoomForEnergy = function(room) {
     return (structureType == STRUCTURE_CONTAINER || STRUCTURE_STORAGE) && structure.storeCapacity > structure.store.energy
   }}
   return room.find(FIND_MY_STRUCTURES, storageStructuresFilter)
+}
+
+var _getContainersWithAvailableCapacity = function(room) {
+  var containerTargetsFilter = {filter: (structure) => {
+    return (structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_STORAGE) && structure.store.energy < structure.storeCapacity}
+  }
+  return room.find(FIND_MY_STRUCTURES, containerTargetsFilter)
+}
+
+var _getTowersThatNeedEnergy = function(room) {
+  var filter = { filter: function(structure) {
+    return structure.structureType == STRUCTURE_TOWER && structure.energy < (structure.energyCapacity - 50)
+  }}
+  return room.find(FIND_MY_STRUCTURES, filter)
 }
 
 var _getAvailableSpawns = function() {
