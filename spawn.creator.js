@@ -17,8 +17,8 @@ var _spawnCreep = function() {
     if(role) {
       var template = _getHighestLevelTemplate(energy, role)
       if(template) {
-        console.log(`Spawning: ${role.name}`)
-        spawn.createCreep(template.bodyParts, {role: role.name, level: template.level})
+        var creepName = spawn.createCreep(template.bodyParts, {role: role.name, level: template.level})
+        console.log(`Spawned: ${creepName} - ${role.name}`)
       }
     }
   }

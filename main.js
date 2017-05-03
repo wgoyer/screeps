@@ -28,9 +28,11 @@ var checkForEnemies = function() {
 var hackFixRoleLessCreeps = function() {
   for(var creep in Game.creeps) {
     if(!Game.creeps[creep].memory) {
+      console.log(`${creep.name} has no memory.`)
       Game.creeps[creep].memory = {'role': 'harvester'}
     }
     if(!Game.creeps[creep].memory.role) {
+      console.log(`${creep.name} has no role.`)
       Game.creeps[creep].memory['role'] = 'harvester'
     }
   }

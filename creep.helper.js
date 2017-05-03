@@ -25,6 +25,11 @@ module.exports = {
     return creepCount
   },
 
+  findClosestDamagedCreep: function(requestor) {
+    var filter = {filter: function(creep) { return creep.hits < creep.hitsMax }}
+    return requestor.pos.findClosestByRange(FIND_MY_CREEPS, filter)
+  },
+
   getRoles: function() {
     return {
       'harvester': {
@@ -50,8 +55,8 @@ module.exports = {
       },
       'defender': {
         'name': 'defender',
-        'minCount': 1,
-        'maxCount': 2,
+        'minCount': 0,
+        'maxCount': 0,
         'priority': 3,
         'template': _defenderCreeps
       }
@@ -93,25 +98,25 @@ var _defenderCreeps = {
   levelZero: {
     level: 0,
     toughness: 10,
-    bodyParts: _addToughness([MOVE, MOVE, CARRY, ATTACK], 10),
+    bodyParts: _addToughness([MOVE, CARRY, ATTACK, MOVE], 10),
     price: 330
   },
   levelOne: {
     level: 1,
     toughness: 20,
-    bodyParts: _addToughness([MOVE, MOVE, CARRY, RANGED_ATTACK], 20),
+    bodyParts: _addToughness([MOVE, CARRY, RANGED_ATTACK, MOVE], 20),
     price: 500
   },
   levelTwo: {
     level: 2,
     toughness: 30,
-    bodyParts: _addToughness([MOVE, MOVE, CARRY, ATTACK, ATTACK], 30),
+    bodyParts: _addToughness([MOVE, CARRY, ATTACK, ATTACK, MOVE], 30),
     price: 610
   },
   levelThree: {
     level: 3,
     toughness: 35,
-    bodyParts: _addToughness([MOVE, MOVE, CARRY, RANGED_ATTACK, RANGED_ATTACK], 35),
+    bodyParts: _addToughness([MOVE, CARRY, RANGED_ATTACK, RANGED_ATTACK, MOVE], 35),
     price: 800
   }
 }
