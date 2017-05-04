@@ -53,15 +53,15 @@ module.exports = {
       },
       'upgrader': {
         'name': 'upgrader',
-        'minCount': 2,
-        'maxCount': 3,
+        'minCount': 1,
+        'maxCount': 2,
         'priority': 1,
         'template': _baseCreeps
       },
       'builder': {
         'name': 'builder',
-        'minCount': 2,
-        'maxCount': 4,
+        'minCount': 1,
+        'maxCount': 2,
         'priority': 2,
         'template': _baseCreeps
       },
@@ -110,13 +110,18 @@ var _baseCreeps = {
   },
   levelTwo: {
     level: 2,
-    bodyParts: [WORK, MOVE, MOVE, CARRY, CARRY, CARRY],
-    price: 350
+    bodyParts: [WORK, WORK, MOVE, MOVE, CARRY, CARRY, CARRY],
+    price: 450
   },
   levelThree: {
     level: 3,
-    bodyParts: [WORK, WORK, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
-    price: 500
+    bodyParts: [WORK, WORK, WORK, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+    price: 600
+  },
+  levelFour: {
+    level: 4,
+    bodyParts: [WORK, WORK, WORK, WORK, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
+    price: 700
   }
 }
 

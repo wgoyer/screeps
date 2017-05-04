@@ -124,6 +124,7 @@ var _newHeadToEnergySourceAndHarvest = function(creep) {
   } else {
     _say(creep, '🔋 full')
     creep.memory['storage'] = 'full'
+    console.log(creep.name, creep.memory.source, creep.memory.role)
     _removeCreepFromHarvesterList(creep, creep.memory['source'])
   }
 }
@@ -220,6 +221,9 @@ var _headToTowerAndDepositEnergy = function(creep, tower) {
 }
 
 var _headToUpgradeTargetAndUpgrade = function(creep) {
+  if(creep.memory.source) {
+    _removeCreepFromHarvesterList(creep, creep.memory.source)
+  }
   creep.memory.upgrading = true
   var upgradeResults = creep.upgradeController(creep.room.controller)
   if(upgradeResults == ERR_NOT_IN_RANGE) creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}})
@@ -231,6 +235,9 @@ var _headToUpgradeTargetAndUpgrade = function(creep) {
 }
 
 var _headToBuildTargetAndBuild = function(creep, buildTarget) {
+  if(creep.memory.source) {
+    _removeCreepFromHarvesterList(creep, creep.memory.source)
+  }
   if(!buildTarget) return
   creep.memory.building = true
   var buildResults = creep.build(buildTarget)
@@ -243,6 +250,9 @@ var _headToBuildTargetAndBuild = function(creep, buildTarget) {
 }
 
 var _headToHangout = function(creep) {
+  if(creep.memory.source) {
+    _removeCreepFromHarvesterList(creep, creep.memory.source)
+  }
   var role = creep.memory.role;
   creep.memory['idle'] = true
   var flags = Game.flags
