@@ -27,6 +27,15 @@ module.exports = {
     if(room) return room.energyCapacityAvailable > room.energyAvailable
   },
 
+  getRoomSources: function(room) {
+    if(!Memory.sources) Memory.sources = {}
+    if(room) {
+      var sourcesInRoom = Game.rooms[room.name].find(FIND_SOURCES_ACTIVE)
+      _addSourcesToMemory(sourcesInRoom, room)
+      return sourcesInRoom
+    }
+  },
+
   getRoomNames: function() {
     var rooms = []
     for(var room in Game.rooms) {
@@ -40,6 +49,21 @@ module.exports = {
 var _roomHasEnergyCapacity = function(room) {
   var storageTotal = _.sum(room.storage.store)
   return room.energyCapacityAvailable > room.energyAvailable || room.storage.storeCapacity > storageTotal
+}
+
+var _addSourcesToMemory = function(sources, room) {
+  if(sources) {
+    for(var i = 0; i < sources.length; i++) {
+      if(!Memory.sources[sources[i].id]) {
+        Memory.sources[sources[i].id] = {room: room.name, harvesters: [], maxUtil: 3}
+      }
+    }
+  }
+}
+
+var _determineMaxUtilizationOfSource = function(sourceID) {
+  var source = Game.getObjectById(sourceID)
+  
 }
 
 var _roomHasWithdrawableEnergy = function(room) {

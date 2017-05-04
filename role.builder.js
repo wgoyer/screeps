@@ -25,6 +25,6 @@ module.exports = {
         creepHasNRG = cHelper.creepHasEnergy(creep)
     if(buildTarget && creepHasNRG) return actions.build(creep, buildTarget)
     if(!buildTarget && creepHasNRG) return actions.upgrade(creep)
-    if(!creepHasNRG) return actions.harvest(creep)
+    if(!creepHasNRG) return actions.newHarvest(creep)
   }
 }

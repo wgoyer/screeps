@@ -21,6 +21,9 @@ var _assignSubRole = function(creep) {
       builderRoleCount = cHelper.getCreepCountFromRoomBySubRole(room, 'builder'),
       subRoleToUse = upgradeRoleCount < builderRoleCount ? 'upgrader' : 'builder'
 
+      console.log('upgradeRoleCount: ' + upgradeRoleCount)
+      console.log('builderRoleCount: ' + builderRoleCount)
+
   creep.memory['subRole'] = subRoleToUse
   return _runSubRole(creep, subRoleToUse)
 }

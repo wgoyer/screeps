@@ -18,7 +18,9 @@ module.exports = {
 
   getCreepCountFromRoomBySubRole: function(room, role) {
     var filter = {filter: function(creep) {return creep.memory.subRole == role}}
-    return room.find(FIND_MY_CREEPS, filter).length
+    var creepsFoundBySubrole = room.find(FIND_MY_CREEPS, filter)
+    console.log(creepsFoundBySubrole)
+    return creepsFoundBySubrole.length
   },
 
   creepHasEnergy: function(creep) {
@@ -73,7 +75,7 @@ module.exports = {
       'invader': {
         'name': 'invader',
         'minCount': 0,
-        'maxCount': 3,
+        'maxCount': 2,
         'priority': 4,
         'template': _invaderCreeps
       },
