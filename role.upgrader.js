@@ -14,13 +14,13 @@ var roleUpgrader = {
     if(!creepHasNRG && roomHasNRG) return actions.withdrawEnergy(creep)
     if(!creepHasNRG && !roomHasNRG) return actions.harvest(creep)
   },
-  
+
   runInvader: function(creep) {
     var room = rHelper.getRoomFromCreep(creep),
         creepHasNRG = cHelper.creepHasEnergy(creep)
 
     if(creepHasNRG) return actions.upgrade(creep)
-    if(!creepHasNRG) return actions.harvest(creep)
+    if(!creepHasNRG) return actions.newHarvest(creep)
   }
 }
 

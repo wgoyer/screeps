@@ -1,12 +1,9 @@
 /** List of ToDos:
-*   Fix issue with new flags causing errors - 2 - done
+*   Optimize harvesters to know how many creeps can use source at once - 4
 *   Remove dead codes, and clean up some stuffs - 1 - WIP
-*   Fix Issue with dead creeps being assigned as tower tenders - 2 - done
 *   Change everything to parse all rooms - 4
 *   Change harvesters to find new source if one is exhausted - 2
-*   Optimize harvesters to know how many creeps can use source at once - 4
 *   Modify pre-requisites for invasion and claiming to look for flag - 3 - WIP
-*   Modify invaders to choose a new role when entering room with flag - 3 - done
 *   Automatically remove claim flag when room is claimed - 2
 *   Handle multiple room spawns - 4
 *   Add special orders, add memory tokens so they can be switched on - 4
@@ -15,6 +12,7 @@
 *   Logic to automatically take over adjacent rooms
 *   After invaders are murdered, go collect their resources
 *   Update creep templates to make more efficient creeps
+*   Fix issue where every creep is idle all the time
 **/
 var roomName = 'W5N8'
 

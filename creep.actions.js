@@ -5,7 +5,12 @@ module.exports = {
   /** @param {Creep} creep **/
   harvest: function(creep) {
     _say(creep, '⛏ harvest')
-    _headToEnergySourceAndHarvest(creep)
+    _newHeadToEnergySourceAndHarvest(creep)
+  },
+
+  newHarvest: function(creep) {
+    _say(creep, '⛏ harvest')
+    _newHeadToEnergySourceAndHarvest(creep)
   },
 
   deposit: function(creep) {
@@ -101,6 +106,52 @@ var _withdrawEnergyFromBank = function(creep) {
   }
 }
 
+var _newHeadToEnergySourceAndHarvest = function(creep) {
+  if(creep.carryCapacity > creep.carry.energy) {
+    var closestAvailableSource = _newGetAvailableSource(creep)
+    closestAvailableSource = typeof(closestAvailableSource) == 'object' && closestAvailableSource != null ? closestAvailableSource.id : closestAvailableSource
+    if(closestAvailableSource) {
+      creep.memory['source'] = closestAvailableSource
+      var harvestSource = Game.getObjectById(closestAvailableSource)
+      if(Memory.sources[closestAvailableSource].harvesters.indexOf(creep.name) == -1) Memory.sources[closestAvailableSource].harvesters.push(creep.name)
+      harvestResults = creep.harvest(harvestSource)
+      if(harvestResults == ERR_NOT_IN_RANGE) creep.moveTo(harvestSource, {visualizePathStyle: {stroke: '#ffaa00'}})
+      if(harvestResults == ERR_NOT_ENOUGH_RESOURCES) {
+        _say(creep, 'SRC M-T')
+        _removeCreepFromHarvesterList(creep, creep.memory['source'])
+      }
+    }
+  } else {
+    _say(creep, '🔋 full')
+    creep.memory['storage'] = 'full'
+    console.log(creep.name, creep.memory.source, creep.memory.role)
+    _removeCreepFromHarvesterList(creep, creep.memory['source'])
+  }
+}
+
+var _removeCreepFromHarvesterList = function(creep, energySource) {
+  delete creep.memory.source
+  var sourceHarvesters = Memory.sources[energySource].harvesters
+  sourceHarvesters.splice(sourceHarvesters.indexOf(creep.name), 1)
+}
+
+var _newGetAvailableSource = function(creep) {
+  if(creep.memory['source']) {
+    return creep.memory['source']
+  }
+  var room = rHelper.getRoomFromCreep(creep),
+      roomSources = rHelper.getRoomSources(room),
+      availableSources = [],
+      tempSourceMem
+  for(var i = 0; i < roomSources.length; i++) {
+    tempSourceMem = Memory.sources[roomSources[i].id]
+    if(tempSourceMem.harvesters.length < tempSourceMem.maxUtil) availableSources.push(Game.getObjectById(roomSources[i].id))
+  }
+  if(availableSources.length == 1) return availableSources[0].id
+  if(availableSources.length > 1) return creep.pos.findClosestByPath(availableSources)
+  return null
+}
+
 var _headToEnergySourceAndHarvest = function(creep) {
   if(creep.carryCapacity > creep.carry.energy) {
     _getAvailableSource(creep, function(source) {
@@ -170,6 +221,9 @@ var _headToTowerAndDepositEnergy = function(creep, tower) {
 }
 
 var _headToUpgradeTargetAndUpgrade = function(creep) {
+  if(creep.memory.source) {
+    _removeCreepFromHarvesterList(creep, creep.memory.source)
+  }
   creep.memory.upgrading = true
   var upgradeResults = creep.upgradeController(creep.room.controller)
   if(upgradeResults == ERR_NOT_IN_RANGE) creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}})
@@ -181,6 +235,9 @@ var _headToUpgradeTargetAndUpgrade = function(creep) {
 }
 
 var _headToBuildTargetAndBuild = function(creep, buildTarget) {
+  if(creep.memory.source) {
+    _removeCreepFromHarvesterList(creep, creep.memory.source)
+  }
   if(!buildTarget) return
   creep.memory.building = true
   var buildResults = creep.build(buildTarget)
@@ -193,6 +250,9 @@ var _headToBuildTargetAndBuild = function(creep, buildTarget) {
 }
 
 var _headToHangout = function(creep) {
+  if(creep.memory.source) {
+    _removeCreepFromHarvesterList(creep, creep.memory.source)
+  }
   var role = creep.memory.role;
   creep.memory['idle'] = true
   var flags = Game.flags
@@ -203,21 +263,11 @@ var _headToHangout = function(creep) {
   }
 }
 
-// var _headToInvasionFlag = function(creep) {
-//   creep.memory['invading'] = true
-//   for(var flag in Game.flags) {
-//     if(Game.flags[flag].memory.roles.indexOf(creep.memory['role']) > 1) {
-//       if(creep.room == flag.room) return
-//       if(creep.room != flag.room) return creep.moveTo(flag, {visualizePathStyle: {stroke: '#f4e842'}})
-//     }
-//   }
-// }
-
 var _newHeadToInvasionFlag = function(creep) {
   var invasionFlag = _getInvasionFlag()
   if(!invasionFlag) return
   if(invasionFlag) {
-    if(creep.room != invasionFlag.room){
+    if(creep.pos.x != invasionFlag.pos.x && creep.pos.y != invasionFlag.pos.y){
       creep.memory['invading'] = 'moving'
       return creep.moveTo(invasionFlag, {visualizePathStyle: {stroke: '#f4e842'}})
     }

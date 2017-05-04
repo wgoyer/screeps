@@ -18,7 +18,9 @@ module.exports = {
 
   getCreepCountFromRoomBySubRole: function(room, role) {
     var filter = {filter: function(creep) {return creep.memory.subRole == role}}
-    return room.find(FIND_MY_CREEPS, filter).length
+    var creepsFoundBySubrole = room.find(FIND_MY_CREEPS, filter)
+    console.log(creepsFoundBySubrole)
+    return creepsFoundBySubrole.length
   },
 
   creepHasEnergy: function(creep) {
@@ -51,15 +53,15 @@ module.exports = {
       },
       'upgrader': {
         'name': 'upgrader',
-        'minCount': 2,
-        'maxCount': 3,
+        'minCount': 1,
+        'maxCount': 2,
         'priority': 1,
         'template': _baseCreeps
       },
       'builder': {
         'name': 'builder',
-        'minCount': 2,
-        'maxCount': 4,
+        'minCount': 1,
+        'maxCount': 2,
         'priority': 2,
         'template': _baseCreeps
       },
@@ -73,7 +75,7 @@ module.exports = {
       'invader': {
         'name': 'invader',
         'minCount': 0,
-        'maxCount': 3,
+        'maxCount': 2,
         'priority': 4,
         'template': _invaderCreeps
       },
@@ -108,13 +110,18 @@ var _baseCreeps = {
   },
   levelTwo: {
     level: 2,
-    bodyParts: [WORK, MOVE, MOVE, CARRY, CARRY, CARRY],
-    price: 350
+    bodyParts: [WORK, WORK, MOVE, MOVE, CARRY, CARRY, CARRY],
+    price: 450
   },
   levelThree: {
     level: 3,
-    bodyParts: [WORK, WORK, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
-    price: 500
+    bodyParts: [WORK, WORK, WORK, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+    price: 600
+  },
+  levelFour: {
+    level: 4,
+    bodyParts: [WORK, WORK, WORK, WORK, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
+    price: 700
   }
 }
 
