@@ -2,7 +2,7 @@ module.exports = {
   purge: function() {
     for(var name in Memory.creeps) {
       if(!Game.creeps[name]) {
-        console.log('☠ rip - ', name)
+        console.log('💀', `[${name}] [${Memory.creeps[name].role}]`)
         _removeDeadTowerTenders()
         if(Memory.sources) {
           _removeDeadHarvesters(name)

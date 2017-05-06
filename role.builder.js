@@ -7,9 +7,10 @@ module.exports = {
   /** @param {Creep} creep **/
   run: function(creep) {
     var buildTarget = sHelper.findClosestConstructionSite(creep),
-        creepHasNRG = cHelper.creepHasEnergy(creep)
+        creepHasNRG = cHelper.creepHasEnergy(creep),
+        roomHasNRG = rHelper.roomHasWithdrawableEnergy(creep)
     if(buildTarget && creepHasNRG) return actions.build(creep, buildTarget)
-    if(buildTarget && !creepHasNRG) return actions.withdrawEnergy(creep)
+    if(buildTarget && !creepHasNRG && roomHasNRG) return actions.withdrawEnergy(creep)
 
     var room = rHelper.getRoomFromCreep(creep),
         roomNeedsNRG = rHelper.roomNeedsSpawnEnergy(room)

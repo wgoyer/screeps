@@ -11,9 +11,13 @@ module.exports = {
     }
   },
 
+  getCreepsFromRoom: function(room) {
+    return Game.rooms[room.name].find(FIND_MY_CREEPS)
+  },
+
   getCreepCountFromRoomByRole: function(room, role) {
     var filter = {filter: function(creep) {return creep.memory.role == role}}
-    return room.find(FIND_MY_CREEPS, filter).length
+    return Game.rooms[room.name].find(FIND_MY_CREEPS, filter).length
   },
 
   getCreepCountFromRoomBySubRole: function(room, role) {
@@ -47,7 +51,7 @@ module.exports = {
       'harvester': {
         'name': 'harvester',
         'minCount': 3,
-        'maxCount': 6,
+        'maxCount': 5,
         'priority': 0,
         'template': _baseCreeps
       },
@@ -120,8 +124,8 @@ var _baseCreeps = {
   },
   levelFour: {
     level: 4,
-    bodyParts: [WORK, WORK, WORK, WORK, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
-    price: 700
+    bodyParts: [WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
+    price: 800
   }
 }
 

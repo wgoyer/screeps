@@ -5,6 +5,11 @@ module.exports = {
   findAvailableSpawn: function() {
     return _getAvailableSpawns()[0] || null
   },
+
+  newFindAvailableSpawns: function() {
+    return _newGetAvailableSpawns()
+  },
+
   // ToDo:  Fix this to handle just MY structures, which means roads and walls have to be included separately
   findClosestDamagedStructure: function(requestor) {
     var filter = {filter: function(structure) { return structure.hits < structure.hitsMax }}
@@ -126,6 +131,15 @@ var _getAvailableSpawns = function() {
       return !structure.spawning && structure.structureType == 'spawn'
     }
   })
+}
+
+var _newGetAvailableSpawns = function() {
+  var spawns = Game.spawns,
+      availableSpawns = []
+  for(var spawn in spawns) {
+    if(!Game.spawns[spawn].spawning) availableSpawns.push(Game.spawns[spawn])
+  }
+  return availableSpawns
 }
 
 var _getAllAvailableSpawns = function() {
