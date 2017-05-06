@@ -47,8 +47,12 @@ module.exports = {
 }
 
 var _roomHasEnergyCapacity = function(room) {
-  var storageTotal = _.sum(room.storage.store)
-  return room.energyCapacityAvailable > room.energyAvailable || room.storage.storeCapacity > storageTotal
+  if(room.storage){
+    var storageTotal = _.sum(room.storage.store)
+    return room.energyCapacityAvailable > room.energyAvailable || room.storage.storeCapacity > storageTotal
+  } else {
+    return room.energyCapacityAvailable > room.energyAvailable
+  }
 }
 
 var _addSourcesToMemory = function(sources, room) {
@@ -63,13 +67,16 @@ var _addSourcesToMemory = function(sources, room) {
 
 var _determineMaxUtilizationOfSource = function(sourceID) {
   var source = Game.getObjectById(sourceID)
-  
+
 }
 
 var _roomHasWithdrawableEnergy = function(room) {
-  var storageTotal = _.sum(room.storage.store)
-  if(room.storage.store.energy && room.storage.store.energy > 0) return room.storage.store.energy
+  if(room.storage) {
+    var storageTotal = _.sum(room.storage.store)
+    if(room.storage.store.energy && room.storage.store.energy > 0) return room.storage.store.energy
+  }
   if(room.energyAvailable > 0) return room.energyAvailable
+
 }
 
 var _getRoomFromCreep = function(creep) {

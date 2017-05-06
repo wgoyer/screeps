@@ -124,8 +124,8 @@ var _newHeadToEnergySourceAndHarvest = function(creep) {
   } else {
     _say(creep, '🔋 full')
     creep.memory['storage'] = 'full'
-    console.log(creep.name, creep.memory.source, creep.memory.role)
-    _removeCreepFromHarvesterList(creep, creep.memory['source'])
+    var creepSource = creep.memory['source']
+    if(creepSource) _removeCreepFromHarvesterList(creep, creepSource)
   }
 }
 
