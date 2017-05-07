@@ -4,36 +4,20 @@ var sHelper = require('structure.helper')
 
 module.exports = {
   breed: function() {
-    _newSpawnCreeps()
+    _spawnCreeps()
   }
 }
 
-// var _spawnCreep = function() {
-//   var spawn = sHelper.findAvailableSpawn()
-//   if(spawn) {
-//     var room = rHelper.getRoomFromSpawn(spawn),
-//         energy = rHelper.getRoomAvailableSpawnEnergy(room),
-//         role = _getMostNeededRole()
-//     if(role) {
-//       var template = _getHighestLevelTemplate(energy, role)
-//       if(template && _preRequisiteIsMet(template)) {
-//         var creepName = spawn.createCreep(template.bodyParts, {role: role.name, level: template.level})
-//         console.log(`👶: Name: ${creepName} Role: ${role.name} Room: ${spawn.room.name}`)
-//       }
-//     }
-//   }
-// }
-
-var _newSpawnCreeps = function() {
-  var spawns = sHelper.newFindAvailableSpawns()
+var _spawnCreeps = function() {
+  var spawns = sHelper.findAvailableSpawns()
   if(spawns) {
     for(var i = 0; i < spawns.length; i++) {
-      _newSpawnCreep(spawns[i])
+      _spawnCreep(spawns[i])
     }
   }
 }
 
-var _newSpawnCreep = function(spawn) {
+var _spawnCreep = function(spawn) {
   var room = rHelper.getRoomFromSpawn(spawn),
       energy = rHelper.getRoomAvailableSpawnEnergy(room),
       role = _getMostNeededRoleForRoom(room)
@@ -47,25 +31,6 @@ var _newSpawnCreep = function(spawn) {
   }
 }
 
-var _getMostNeededRole = function() {
-  var creeps = cHelper.getCreeps()
-  var roles = cHelper.getRoles()
-  if(creeps) {
-    for(var role in roles) {
-      if(roles[role].minCount > cHelper.getCreepCount(role)) return roles[role]
-    }
-
-    for(var role in roles) {
-      if(roles[role].maxCount > cHelper.getCreepCount(role)) return roles[role]
-    }
-
-  } else {
-    for(var role in roles) {
-      if(roles[role].priority == 0) return roles[role]
-    }
-  }
-}
-
 var _getMostNeededRoleForRoom = function(room) {
   var creeps = cHelper.getCreepsFromRoom(room)
   var roles = cHelper.getRoles()
@@ -75,7 +40,7 @@ var _getMostNeededRoleForRoom = function(room) {
     }
 
     for(var role in roles) {
-      if(roles[role].maxCount > cHelper.getCreepCount(role)) return roles[role]
+      if(roles[role].maxCount > cHelper.getCreepCountFromRoomByRole(room, role)) return roles[role]
     }
 
   } else {
@@ -91,6 +56,12 @@ var _preRequisiteIsMet = function(template) {
   if(preRequisite.type == 'memory') {
     var keyValue = Memory[preRequisite.key]
     if(preRequisite.value == 'boolean') return keyValue || false
+  }
+  if(preRequisite.type == 'flag') {
+    var flagName = preRequisite.flagName.toLowerCase()
+    for(var flag in Game.flags) {
+      if(Game.flags[flag].name.toLowerCase() == flagName) return true
+    }
   }
 }
 

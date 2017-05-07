@@ -20,10 +20,18 @@ module.exports = {
     return Game.rooms[room.name].find(FIND_MY_CREEPS, filter).length
   },
 
+  getCreepCountFromWorldByRole: function(role) {
+    var filter = {filter: function(creep) {return creep.memory.role == role}}
+    var creepCount = 0
+    for(var room in Game.rooms) {
+      creepCount += Game.rooms[room].find(FIND_MY_CREEPS, filter).length
+    }
+    return creepCount
+  },
+
   getCreepCountFromRoomBySubRole: function(room, role) {
     var filter = {filter: function(creep) {return creep.memory.subRole == role}}
     var creepsFoundBySubrole = room.find(FIND_MY_CREEPS, filter)
-    console.log(creepsFoundBySubrole)
     return creepsFoundBySubrole.length
   },
 
@@ -52,6 +60,7 @@ module.exports = {
         'name': 'harvester',
         'minCount': 3,
         'maxCount': 5,
+        'maxLevel': 'room',
         'priority': 0,
         'template': _baseCreeps
       },
@@ -59,6 +68,7 @@ module.exports = {
         'name': 'upgrader',
         'minCount': 1,
         'maxCount': 2,
+        'maxLevel': 'room',
         'priority': 1,
         'template': _baseCreeps
       },
@@ -66,6 +76,7 @@ module.exports = {
         'name': 'builder',
         'minCount': 1,
         'maxCount': 2,
+        'maxLevel': 'room',
         'priority': 2,
         'template': _baseCreeps
       },
@@ -73,13 +84,23 @@ module.exports = {
         'name': 'defender',
         'minCount': 0,
         'maxCount': 0,
+        'maxLevel': 'room',
         'priority': 3,
         'template': _defenderCreeps
+      },
+      'transporter': {
+        'name': 'transporter',
+        'minCount': 0,
+        'maxCount': 3,
+        'maxLevel': 'world',
+        'priority': 4,
+        'template': _transporterCreeps
       },
       'invader': {
         'name': 'invader',
         'minCount': 0,
         'maxCount': 2,
+        'maxLevel': 'world',
         'priority': 4,
         'template': _invaderCreeps
       },
@@ -87,6 +108,7 @@ module.exports = {
         'name': 'claimer',
         'minCount': 0,
         'maxCount': 1,
+        'maxLevel': 'world',
         'priority': 5,
         'template': _claimerCreeps
       }
@@ -156,24 +178,32 @@ var _defenderCreeps = {
   }
 }
 
-// todo:  Change pre-req to be flag
+var _transporterCreeps = {
+  levelZero: {
+    level: 0,
+    toughness: 0,
+    bodyParts: [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
+    preRequisite: {type: 'flag', flagName: 'transport'},
+    price: 500
+  }
+}
+
 var _invaderCreeps = {
   levelZero: {
     level: 0,
     toughness: 0,
     bodyParts: [MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK],
-    preRequisite: {type: 'memory', key: 'spawnInvader', value: 'boolean'},
+    preRequisite: {type: 'flag', flagName: 'invade'},
     price: 700
   }
 }
 
-// todo: Change pre-req to be flag
 var _claimerCreeps = {
   levelZero: {
     level: 0,
     toughness: 5,
     bodyParts: _addToughness([MOVE, MOVE, MOVE, MOVE, MOVE, CLAIM], 5),
-    preRequisite: {type: 'memory', key: 'spawnClaimer', value: 'boolean'},
+    preRequisite: {type: 'flag', flagName: 'claim'},
     price: 850
   }
 }

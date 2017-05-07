@@ -8,10 +8,11 @@ var roleHarvester = {
   run: function(creep) {
     var room = rHelper.getRoomFromCreep(creep),
         creepHasNRG = cHelper.creepHasEnergy(creep),
-        roomHasCapacity = rHelper.roomHasEnergyCapacity(room)
+        roomHasCapacity = rHelper.roomHasEnergyCapacity(room),
+        roomHasNeedyTowers = sHelper.findNeedyTower(creep)
 
     if(!creepHasNRG) return actions.harvest(creep)
-    if(creepHasNRG && roomHasCapacity) return actions.deposit(creep)
+    if(creepHasNRG && roomHasCapacity || roomHasNeedyTowers) return actions.deposit(creep)
     if(creepHasNRG && !roomHasCapacity) return actions.upgrade(creep)
   }
 }
