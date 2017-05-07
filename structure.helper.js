@@ -2,12 +2,8 @@ var rHelper = require('room.helper')
 var roomName = 'W5N8'
 module.exports = {
 
-  findAvailableSpawn: function() {
-    return _getAvailableSpawns()[0] || null
-  },
-
-  newFindAvailableSpawns: function() {
-    return _newGetAvailableSpawns()
+  findAvailableSpawns: function() {
+    return _getAvailableSpawns()
   },
 
   // ToDo:  Fix this to handle just MY structures, which means roads and walls have to be included separately
@@ -47,9 +43,15 @@ module.exports = {
   },
 
   findClosestEnergyToWithdraw: function(creep) {
-    var containersWithEnergy = _getContainersWithEnergy(creep)
-    if(containersWithEnergy.length > 0) {
-      return creep.pos.findClosestByPath(containersWithEnergy)
+    var storageAndContainers = []
+    var room = Game.rooms[creep.room.name]
+    if(room.storage) {
+      var storageTotal = _.sum(room.storage.store)
+      if(room.storage.store.energy > creep.carryCapacity) storageAndContainers.push(room.storage)
+    }
+    storageAndContainers.concat(_getContainersWithEnergy(creep))
+    if(storageAndContainers.length > 0) {
+      return creep.pos.findClosestByPath(storageAndContainers)
     } else {
       var spawnFilter = {filter: function(structure) {
         return structure.structureType == STRUCTURE_SPAWN && structure.energy > creep.carryCapacity
@@ -126,14 +128,6 @@ var _getTowersThatNeedEnergy = function(room) {
 }
 
 var _getAvailableSpawns = function() {
-  return Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
-    filter: function(structure){
-      return !structure.spawning && structure.structureType == 'spawn'
-    }
-  })
-}
-
-var _newGetAvailableSpawns = function() {
   var spawns = Game.spawns,
       availableSpawns = []
   for(var spawn in spawns) {

@@ -1,11 +1,14 @@
 /** List of ToDos:
-*   Optimize harvesters to know how many creeps can use source at once - 4
+*   Fix issue where creeps aren't reloading the stupid towers
+*   Fix issue with spawning more than max count for creeps that span multiple rooms
+*   Fix issue with role.claimer and role.invader to use the same methods
+*   Optimize harvesters to know how many creeps can use source at once - 4 - WIP
 *   Remove dead codes, and clean up some stuffs - 1 - WIP
 *   Change everything to parse all rooms - 4
-*   Change harvesters to find new source if one is exhausted - 2
+*   Change harvesters to find new source if one is exhausted - 2 - DONE
 *   Modify pre-requisites for invasion and claiming to look for flag - 3 - WIP
 *   Automatically remove claim flag when room is claimed - 2
-*   Handle multiple room spawns - 4
+*   Handle multiple room spawns - 4 - DONE
 *   Add special orders, add memory tokens so they can be switched on - 4
 *   Add logic to extract minerals
 *   Set up room links to transfer minerals between rooms

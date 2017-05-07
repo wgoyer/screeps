@@ -267,16 +267,19 @@ var _newHeadToInvasionFlag = function(creep) {
   var invasionFlag = _getInvasionFlag()
   if(!invasionFlag) return
   if(invasionFlag) {
-    if(creep.pos.x != invasionFlag.pos.x && creep.pos.y != invasionFlag.pos.y){
-      creep.memory['invading'] = 'moving'
-      return creep.moveTo(invasionFlag, {visualizePathStyle: {stroke: '#f4e842'}})
+    if(creep.room == invasionFlag.room) {
+      if(creep.pos.x != invasionFlag.pos.x || creep.pos.y != invasionFlag.pos.y){
+        creep.memory['invading'] = 'moving'
+        return creep.moveTo(invasionFlag, {visualizePathStyle: {stroke: '#f4e842'}})
+      }
+      return creep.memory['invading'] = 'done'
     }
-    if(creep.room == invasionFlag.room) return creep.memory['invading'] = 'done'
+      return creep.moveTo(invasionFlag, {visualizePathStyle: {stroke: '#f4e842'}})
   }
 }
 
 var _headToClaimFlagAndClaimRoom = function(creep) {
-  var claimFlag = _getclaimFlag()
+  var claimFlag = _getClaimFlag()
   if(!claimFlag) return
   if(claimFlag) {
     if(creep.room != claimFlag.room) {
