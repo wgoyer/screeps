@@ -176,6 +176,13 @@ var _headToDepositTargetAndDepositEnergy = function(creep) {
   if(depository) {
     var transferResults
     if(depository.structureType != 'tower') {
+      // Clear creep from reloading the tower, should be cleaned up in a better place.
+      for(var tower in Memory.towers) {
+        if(Memory.towers[tower] == creep.id) {
+          if(creep.memory.tendingTower) delete(creep.memory.tendingTower)
+          Memory.towers[tower] = false
+        }
+      }
       transferResults = creep.transfer(depository, RESOURCE_ENERGY)
       if(transferResults == ERR_NOT_IN_RANGE) creep.moveTo(depository, {visualizePathStyle: {stroke: '#ffffff'}})
       if(creep.carry.energy == 0) {
@@ -194,12 +201,15 @@ var _getDepositTarget = function(creep) {
       structs,
       room = rHelper.getRoomFromCreep(creep)
 
-  structs = sHelper.findBaseStructuresThatNeedEnergy(room)
-  if(structs.length > 0) return creep.pos.findClosestByPath(structs)
-
+  // look for towers under 500 energy first
   structs = sHelper.findNeedyTower(creep)
   if(structs) return structs
 
+  // Then look for any spawn or extension that has less than max capacity
+  structs = sHelper.findBaseStructuresThatNeedEnergy(room)
+  if(structs.length > 0) return creep.pos.findClosestByPath(structs)
+
+  // If no other building needs energy, check for containers and storage in the room
   structs = sHelper.findContainersThatNeedEnergy(room)
   if(structs.length > 0) return creep.pos.findClosestByPath(structs)
 }

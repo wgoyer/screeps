@@ -1,5 +1,4 @@
 var rHelper = require('room.helper')
-var roomName = 'W5N8'
 module.exports = {
 
   findAvailableSpawns: function() {
@@ -54,7 +53,7 @@ module.exports = {
       return creep.pos.findClosestByPath(storageAndContainers)
     } else {
       var spawnFilter = {filter: function(structure) {
-        return structure.structureType == STRUCTURE_SPAWN && structure.energy > creep.carryCapacity
+        return structure.structureType == STRUCTURE_SPAWN && structure.energy > (creep.carryCapacity + 100)
       }}
       return creep.pos.findClosestByPath(FIND_MY_STRUCTURES, spawnFilter)
     }
@@ -84,22 +83,6 @@ var _getContainersWithEnergy = function(creep) {
   return creep.room.find(FIND_MY_STRUCTURES, containerFilter)
 }
 
-var _getStructuresWithAvailableEnergyCapacity = function() {
-  return Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
-    filter: function(structure) {
-      return structure.energy < structure.energyCapacity
-    }
-  })
-}
-
-var _getStructuresWithAvailableEnergyForWithdraw = function() {
-  return Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
-    filter: function(structure) {
-      return structure.energy > 50
-    }
-  })
-}
-
 var _getStructuresWithRoomForEnergy = function(room) {
   var energyStructuresFilter = {filter: function(structure) {
     return (structureType == STRUCTURE_SPAWN || structureType == STRUCTURE_EXTENSION || structureType == STRUCTURE_TOWER) && structure.energyCapacity > structure.energy
@@ -122,7 +105,7 @@ var _getContainersWithAvailableCapacity = function(room) {
 
 var _getTowersThatNeedEnergy = function(room) {
   var filter = { filter: function(structure) {
-    return structure.structureType == STRUCTURE_TOWER && structure.energy < (structure.energyCapacity - 50)
+    return structure.structureType == STRUCTURE_TOWER && structure.energy < 500
   }}
   return room.find(FIND_MY_STRUCTURES, filter)
 }

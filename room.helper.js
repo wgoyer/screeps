@@ -36,6 +36,17 @@ module.exports = {
     }
   },
 
+  setRoomSourcesMaxUtilization: function(room) {
+    // x: 10, y: 22
+    // above: y+1
+    // below: y-1
+    // left x-1
+    // right x+1
+    // check left and right of position
+    // increment y by one and check position, and left and right
+    // decrement y by two and check position, and left and right
+  },
+
   getRoomNames: function() {
     var rooms = []
     for(var room in Game.rooms) {
