@@ -15,6 +15,22 @@ module.exports = {
     return _getMyStructuresFromRooms('tower')
   },
 
+  findClosestLinkSender: function(creep) {
+    var filter = {filter: function(structure) {return structure.structureType == 'link'}}
+    var roomLinks = creep.room.find(FIND_MY_STRUCTURES, filter)
+    var senderLinks = []
+    if(senderLinks){
+      for(var i = 0; i < senderLinks.length; i++) {
+        if(Memory.links[senderLinks[i]]) senderLinks.push(senderLinks[i])
+      }
+    }
+    return senderLinks
+  },
+
+  findClosestLinkReceiver: function(creep) {
+
+  },
+
   findBaseStructuresThatNeedEnergy: function(room) {
     var energyTargetsFilter = {filter: (structure) => {
       return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) && structure.energy < structure.energyCapacity}
